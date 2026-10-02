@@ -259,10 +259,15 @@ export default function GamesPage() {
           <div className="footer-container">
             <div className="footer-bottom" style={{ border: 'none', paddingTop: 0 }}>
               <img src="/assets/vardhaman_neon_logo.png" alt="Vardhaman" className="footer-college-logo" />
-              <div className="footer-copy">© 2026 CONNECT CLUB. ALL RIGHTS RESERVED. SURVIVE THE SYSTEM.</div>
-              <div className="footer-status">
-                <span className="status-pulse-dot" />
-                <span>ALL ARENA SECTORS ONLINE</span>
+              <div className="footer-status-group" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
+                <div className="footer-status">
+                  <span className="status-pulse-dot" />
+                  <span>ALL ARENA SECTORS ONLINE</span>
+                </div>
+                <Link to="/admin" className="footer-status footer-admin-btn" title="Open Admin Control Panel">
+                  <span className="status-pulse-dot" style={{ background: '#ff2ef7' }} />
+                  <span>ADMIN ACCESS</span>
+                </Link>
               </div>
             </div>
           </div>

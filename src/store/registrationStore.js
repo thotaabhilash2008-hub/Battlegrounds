@@ -62,7 +62,8 @@ export async function deleteRegistration(id) {
   }
 }
 
-export function getAnalytics(regs) {
+export function getAnalytics(regs = []) {
+  if (!Array.isArray(regs)) regs = [];
   const total = regs.length;
   const verified = regs.filter(r => r.status === 'verified').length;
   const pending = regs.filter(r => r.status === 'pending').length;

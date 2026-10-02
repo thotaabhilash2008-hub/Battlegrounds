@@ -537,6 +537,22 @@ body {
   background: var(--cyan);
   animation: blink 2s ease infinite;
 }
+.footer-admin-btn {
+  text-decoration: none;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  background: rgba(0, 240, 255, 0.04);
+  transition: all 0.2s ease;
+  color: rgba(0, 240, 255, 0.6);
+}
+.footer-admin-btn:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+}
 
 /* ── GAMES PAGE ──────────────────────────────────────────*/
 .dedicated-site {
