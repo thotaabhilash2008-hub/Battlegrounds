@@ -173,7 +173,7 @@ function RegDetailModal({ reg, onClose, onStatusChange }) {
 }
 
 // ── DASHBOARD VIEW ─────────────────────────────────────────
-function DashboardView({ regs, analytics, onNav }) {
+function DashboardView({ regs, analytics, onNav, onSelectReg }) {
   return (
     <>
       <div className="stats-grid">
@@ -231,16 +231,25 @@ function DashboardView({ regs, analytics, onNav }) {
           <table className="reg-table">
             <thead>
               <tr>
-                <th>ID</th><th>Team Name</th><th>Lead</th><th>Size</th><th>Fee</th><th>Status</th>
+                <th>ID</th><th>Team Name (Click to View)</th><th>Lead</th><th>Size</th><th>Fee</th><th>Status</th>
               </tr>
             </thead>
             <tbody>
               {regs.slice(0, 5).map(r => (
-                <tr key={r.id}>
-                  <td><span className="reg-id-cell">{r.id}</span></td>
-                  <td><span className="team-name-cell">{r.teamName}</span></td>
-                  <td>{r.lead?.name}</td>
-                  <td>{r.teamSize}</td>
+                <tr 
+                  key={r.id} 
+                  onClick={() => onSelectReg && onSelectReg(r)} 
+                  style={{ cursor: 'pointer' }}
+                  title="Click to view all squad members"
+                >
+                  <td><span className="reg-id-cell">{r.bgId || r.id}</span></td>
+                  <td>
+                    <span className="team-name-cell" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {r.teamName} <span style={{ fontSize: '0.62rem', color: '#00f0ff', opacity: 0.8 }}>🔍</span>
+                    </span>
+                  </td>
+                  <td>{r.lead?.name || '—'}</td>
+                  <td>{r.teamSize || ((r.members?.length || 0) + 1)}</td>
                   <td style={{ color: '#22c55e', fontWeight: 700 }}>₹{r.totalFee}</td>
                   <td><span className={`status-badge status-${r.status}`}>{r.status}</span></td>
                 </tr>
@@ -256,51 +265,75 @@ function DashboardView({ regs, analytics, onNav }) {
   )
 }
 
-// ── REGISTRATIONS VIEW ─────────────────────────────────────
-function RegistrationsView({ allParticipants, regs, onStatusChange, onDelete }) {
+// ── REGISTRATIONS VIEW (DISPLAY BY TEAM) ────────────────────
+function RegistrationsView({ regs, onStatusChange, onDelete, onSelectReg }) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [yearFilter, setYearFilter] = useState('all')
   const [branchFilter, setBranchFilter] = useState('all')
-  const [selectedReg, setSelectedReg] = useState(null)
 
   const uniqueYears = useMemo(() => {
-     const years = new Set()
-     allParticipants.forEach(p => { if(p.year) years.add(p.year) })
-     return Array.from(years).sort()
-  }, [allParticipants])
+    const years = new Set()
+    regs.forEach(r => {
+      if (r.lead?.year) years.add(r.lead.year)
+      ;(r.members || []).forEach(m => { if (m.year) years.add(m.year) })
+    })
+    return Array.from(years).sort()
+  }, [regs])
 
   const uniqueBranches = useMemo(() => {
-     const branches = new Set()
-     allParticipants.forEach(p => { if(p.branch) branches.add(p.branch) })
-     return Array.from(branches).sort()
-  }, [allParticipants])
+    const branches = new Set()
+    regs.forEach(r => {
+      if (r.lead?.branch) branches.add(r.lead.branch)
+      ;(r.members || []).forEach(m => { if (m.branch) branches.add(m.branch) })
+    })
+    return Array.from(branches).sort()
+  }, [regs])
 
-  const filteredParticipants = useMemo(() => {
-    let list = allParticipants
-    if (filter !== 'all') list = list.filter(p => p.status === filter)
-    if (yearFilter !== 'all') list = list.filter(p => String(p.year) === String(yearFilter))
-    if (branchFilter !== 'all') list = list.filter(p => String(p.branch) === String(branchFilter))
-    
+  const filteredTeams = useMemo(() => {
+    let list = regs
+    if (filter !== 'all') list = list.filter(r => r.status === filter)
+    if (yearFilter !== 'all') {
+      list = list.filter(r => String(r.lead?.year) === String(yearFilter) || r.members?.some(m => String(m.year) === String(yearFilter)))
+    }
+    if (branchFilter !== 'all') {
+      list = list.filter(r => String(r.lead?.branch) === String(branchFilter) || r.members?.some(m => String(m.branch) === String(branchFilter)))
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase()
-      list = list.filter(p =>
-        p.teamName?.toLowerCase().includes(q) ||
-        p.regId?.toLowerCase().includes(q) ||
-        p.name?.toLowerCase().includes(q) ||
-        p.roll?.toLowerCase().includes(q)
+      list = list.filter(r =>
+        r.teamName?.toLowerCase().includes(q) ||
+        r.id?.toLowerCase().includes(q) ||
+        r.bgId?.toLowerCase().includes(q) ||
+        r.lead?.name?.toLowerCase().includes(q) ||
+        r.lead?.roll?.toLowerCase().includes(q) ||
+        r.members?.some(m => m.name?.toLowerCase().includes(q) || m.roll?.toLowerCase().includes(q))
       )
     }
     return list
-  }, [allParticipants, filter, yearFilter, branchFilter, search])
+  }, [regs, filter, yearFilter, branchFilter, search])
 
   function exportCSV() {
-    const headers = ['Team ID', 'Team Name', 'Role', 'Name', 'Roll Number', 'Phone', 'Year', 'Branch', 'Section', 'Team Size', 'Total Fee', 'Status', 'UTR', 'Registered On']
-    
-    filteredParticipants.forEach(p => {
+    const headers = ['Team ID', 'Team Name', 'Leader Name', 'Leader Roll', 'Leader Phone', 'Leader Branch', 'Leader Year', 'Leader Section', 'Team Size', 'Members Details', 'Total Fee', 'Status', 'UTR', 'Registered On']
+    const rows = []
+    filteredTeams.forEach(r => {
+      const membersStr = (r.members || []).map((m, idx) => `M${idx + 2}: ${m.name} (${m.roll}, ${m.branch})`).join('; ')
       rows.push([
-        p.regId, p.teamName, p.role, p.name, p.roll, p.phone || '', p.year || '', p.branch || '', p.section || '',
-        p.reg?.teamSize, p.totalFee, p.status, p.reg?.utr, new Date(p.timestamp).toLocaleDateString('en-IN')
+        r.bgId || r.id,
+        r.teamName,
+        r.lead?.name || '',
+        r.lead?.roll || '',
+        r.lead?.phone || '',
+        r.lead?.branch || '',
+        r.lead?.year || '',
+        r.lead?.section || '',
+        r.teamSize || ((r.members?.length || 0) + 1),
+        membersStr,
+        r.totalFee,
+        r.status,
+        r.utr || '',
+        new Date(r.timestamp).toLocaleDateString('en-IN')
       ])
     })
 
@@ -308,7 +341,9 @@ function RegistrationsView({ allParticipants, regs, onStatusChange, onDelete }) 
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url; a.download = `battlegrounds_registrations_${Date.now()}.csv`; a.click()
+    a.href = url
+    a.download = `battlegrounds_teams_${Date.now()}.csv`
+    a.click()
     URL.revokeObjectURL(url)
   }
 
@@ -316,7 +351,7 @@ function RegistrationsView({ allParticipants, regs, onStatusChange, onDelete }) 
     <>
       <div className="table-card">
         <div className="table-header">
-          <span className="table-title">All Students ({filteredParticipants.length})</span>
+          <span className="table-title">Registered Teams ({filteredTeams.length})</span>
           <div className="table-actions">
             <button className="table-btn table-btn-ghost" onClick={exportCSV}>
               <DownloadIcon /> Export CSV
@@ -328,7 +363,7 @@ function RegistrationsView({ allParticipants, regs, onStatusChange, onDelete }) 
           <div className="admin-search" style={{ marginRight: 'auto' }}>
             <SearchIcon size={13} />
             <input
-              placeholder="Search team, lead, roll, ID..."
+              placeholder="Search team name, lead, member, roll, ID..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -360,39 +395,65 @@ function RegistrationsView({ allParticipants, regs, onStatusChange, onDelete }) 
           <table className="reg-table">
             <thead>
               <tr>
-                <th>Team ID</th><th>Team Name</th><th>Role</th><th>Student Name</th><th>Roll No.</th><th>Branch/Year</th><th>Status</th><th>Actions</th>
+                <th>Team ID</th>
+                <th>Team Name (Click to View)</th>
+                <th>Team Leader</th>
+                <th>Branch / Year</th>
+                <th>Squad Size</th>
+                <th>Fee</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredParticipants.map((p, index) => (
-                <tr key={`${p.regId}-${p.roll || index}-${index}`}>
-                  <td><span className="reg-id-cell">{p.regId}</span></td>
-                  <td><span className="team-name-cell">{p.teamName}</span></td>
+              {filteredTeams.map((r) => (
+                <tr 
+                  key={r.id} 
+                  onClick={() => onSelectReg(r)}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to view all squad members and lead info"
+                >
+                  <td><span className="reg-id-cell">{r.bgId || r.id}</span></td>
                   <td>
-                    {p.isLead ? <span style={{ fontSize: '0.6rem', color: '#ffd700', padding: '0.2rem 0.4rem', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 3 }}>LEAD</span> 
-                              : <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', padding: '0.2rem 0.4rem', background: 'rgba(255,255,255,0.05)', borderRadius: 3 }}>{p.role.toUpperCase()}</span>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="team-name-cell" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{r.teamName}</span>
+                      <span style={{ fontSize: '0.62rem', color: '#00f0ff', background: 'rgba(0,240,255,0.08)', padding: '2px 6px', borderRadius: 3, border: '1px solid rgba(0,240,255,0.2)' }}>
+                        🔍 View Members
+                      </span>
+                    </div>
                   </td>
-                  <td style={{ fontWeight: 600 }}>{p.name}</td>
-                  <td style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.75rem', color: '#00f0ff' }}>{p.roll}</td>
                   <td>
-                    <div style={{ fontSize: '0.75rem' }}>{p.branch} • Yr {p.year}</div>
-                    {p.phone && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>{p.phone}</div>}
+                    <div style={{ fontWeight: 600, color: '#fff' }}>{r.lead?.name || '—'}</div>
+                    {r.lead?.roll && (
+                      <div style={{ fontSize: '0.68rem', color: '#00f0ff', fontFamily: "'Orbitron', monospace" }}>{r.lead.roll}</div>
+                    )}
                   </td>
-                  <td><span className={`status-badge status-${p.status}`}>{p.status}</span></td>
                   <td>
-                    <div className="row-actions">
-                      <button className="icon-btn" title="View Team Details" onClick={() => setSelectedReg(p.reg)}><EyeIcon /></button>
-                      {p.status !== 'verified' && <button className="icon-btn success" title="Verify Team" onClick={() => onStatusChange(p.regId, 'verified')}><CheckIcon /></button>}
-                      {p.status !== 'rejected' && <button className="icon-btn danger" title="Reject Team" onClick={() => onStatusChange(p.regId, 'rejected')}><XIcon /></button>}
-                      <button className="icon-btn danger" title="Delete Team" onClick={() => { if(window.confirm('Delete this entire team registration?')) onDelete(p.regId) }}><TrashIcon /></button>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
+                      {r.lead?.branch ? `${r.lead.branch} • Yr ${r.lead.year || ''}` : '—'}
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: 4, color: '#fff', fontWeight: 600 }}>
+                      {r.teamSize || ((r.members?.length || 0) + 1)} Players
+                    </span>
+                  </td>
+                  <td style={{ color: '#22c55e', fontWeight: 700 }}>₹{r.totalFee}</td>
+                  <td><span className={`status-badge status-${r.status}`}>{r.status}</span></td>
+                  <td>
+                    <div className="row-actions" onClick={e => e.stopPropagation()}>
+                      <button className="icon-btn" title="View Team & Members" onClick={() => onSelectReg(r)}><EyeIcon /></button>
+                      {r.status !== 'verified' && <button className="icon-btn success" title="Verify Team" onClick={() => onStatusChange(r.id, 'verified')}><CheckIcon /></button>}
+                      {r.status !== 'rejected' && <button className="icon-btn danger" title="Reject Team" onClick={() => onStatusChange(r.id, 'rejected')}><XIcon /></button>}
+                      <button className="icon-btn danger" title="Delete Team" onClick={() => { if(window.confirm(`Delete team "${r.teamName}"?`)) onDelete(r.id) }}><TrashIcon /></button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {filteredParticipants.length === 0 && (
+              {filteredTeams.length === 0 && (
                 <tr><td colSpan={8}>
                   <div className="empty-state">
-                    <p>No students found</p>
+                    <p>No teams found</p>
                   </div>
                 </td></tr>
               )}
@@ -400,14 +461,6 @@ function RegistrationsView({ allParticipants, regs, onStatusChange, onDelete }) 
           </table>
         </div>
       </div>
-
-      {selectedReg && (
-        <RegDetailModal
-          reg={selectedReg}
-          onClose={() => setSelectedReg(null)}
-          onStatusChange={(id, status) => { onStatusChange(id, status); setSelectedReg(null) }}
-        />
-      )}
     </>
   )
 }
@@ -602,7 +655,7 @@ function AnalyticsView({ analytics, regs }) {
 }
 
 // ── PAYMENTS VIEW ──────────────────────────────────────────
-function PaymentsView({ regs, onStatusChange }) {
+function PaymentsView({ regs, onStatusChange, onSelectReg }) {
   const [filter, setFilter] = useState('all')
   const filtered = useMemo(() => {
     if (filter === 'all') return regs
@@ -632,7 +685,7 @@ function PaymentsView({ regs, onStatusChange }) {
 
       <div className="table-card">
         <div className="table-header">
-          <span className="table-title">Payment Records</span>
+          <span className="table-title">Payment Records ({filtered.length})</span>
           <div className="filter-bar" style={{ padding: 0, border: 'none' }}>
             {['all', 'verified', 'pending', 'rejected'].map(f => (
               <button key={f} className={`filter-chip ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
@@ -644,14 +697,23 @@ function PaymentsView({ regs, onStatusChange }) {
         <div className="reg-table-wrapper">
           <table className="reg-table">
             <thead>
-              <tr><th>ID</th><th>Team</th><th>Lead</th><th>Amount</th><th>UTR</th><th>Screenshot</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>ID</th><th>Team Name (Click to View)</th><th>Lead</th><th>Amount</th><th>UTR</th><th>Screenshot</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {filtered.map(r => (
-                <tr key={r.id}>
-                  <td><span className="reg-id-cell">{r.id}</span></td>
-                  <td><span className="team-name-cell">{r.teamName}</span></td>
-                  <td>{r.lead?.name}</td>
+                <tr 
+                  key={r.id} 
+                  onClick={() => onSelectReg && onSelectReg(r)} 
+                  style={{ cursor: 'pointer' }}
+                  title="Click to view all squad members and payment info"
+                >
+                  <td><span className="reg-id-cell">{r.bgId || r.id}</span></td>
+                  <td>
+                    <span className="team-name-cell" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}>
+                      {r.teamName} <span style={{ fontSize: '0.62rem', color: '#00f0ff', opacity: 0.8 }}>🔍</span>
+                    </span>
+                  </td>
+                  <td>{r.lead?.name || '—'}</td>
                   <td style={{ color: '#22c55e', fontWeight: 700 }}>₹{r.totalFee}</td>
                   <td><span style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.65rem', color: 'rgba(0,240,255,0.7)' }}>{r.utr || '—'}</span></td>
                   <td>
@@ -662,7 +724,8 @@ function PaymentsView({ regs, onStatusChange }) {
                   </td>
                   <td><span className={`status-badge status-${r.status}`}>{r.status}</span></td>
                   <td>
-                    <div className="row-actions">
+                    <div className="row-actions" onClick={e => e.stopPropagation()}>
+                      <button className="icon-btn" title="View Team Details" onClick={() => onSelectReg && onSelectReg(r)}><EyeIcon /></button>
                       {r.status !== 'verified' && <button className="icon-btn success" title="Verify" onClick={() => onStatusChange(r.id, 'verified')}><CheckIcon /></button>}
                       {r.status !== 'rejected' && <button className="icon-btn danger" title="Reject" onClick={() => onStatusChange(r.id, 'rejected')}><XIcon /></button>}
                     </div>
@@ -842,6 +905,7 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('admin_authed') === '1')
   const [activeNav, setActiveNav] = useState('dashboard')
   const [regs, setRegs] = useState([])
+  const [selectedReg, setSelectedReg] = useState(null)
 
   useEffect(() => {
     if (authed) {
@@ -1011,10 +1075,10 @@ export default function AdminPage() {
 
         <div className="admin-content">
           {activeNav === 'dashboard' && (
-            <DashboardView regs={regs} analytics={analytics} onNav={setActiveNav} />
+            <DashboardView regs={regs} analytics={analytics} onNav={setActiveNav} onSelectReg={setSelectedReg} />
           )}
           {activeNav === 'registrations' && (
-            <RegistrationsView allParticipants={allParticipants} regs={regs} onStatusChange={handleStatusChange} onDelete={handleDelete} />
+            <RegistrationsView regs={regs} onStatusChange={handleStatusChange} onDelete={handleDelete} onSelectReg={setSelectedReg} />
           )}
           {activeNav === 'attendance' && (
             <AttendanceView allParticipants={allParticipants} onAttendanceChange={handleAttendanceChange} />
@@ -1023,11 +1087,19 @@ export default function AdminPage() {
             <AnalyticsView analytics={analytics} regs={regs} />
           )}
           {activeNav === 'payments' && (
-            <PaymentsView regs={regs} onStatusChange={handleStatusChange} />
+            <PaymentsView regs={regs} onStatusChange={handleStatusChange} onSelectReg={setSelectedReg} />
           )}
           {activeNav === 'settings' && <SettingsView />}
         </div>
       </main>
+
+      {selectedReg && (
+        <RegDetailModal
+          reg={selectedReg}
+          onClose={() => setSelectedReg(null)}
+          onStatusChange={(id, status) => { handleStatusChange(id, status); setSelectedReg(null) }}
+        />
+      )}
     </div>
   )
 }
