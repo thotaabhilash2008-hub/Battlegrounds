@@ -1,8 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 
+function checkIsMobile() {
+  if (typeof window === 'undefined') return false
+  return (
+    window.innerWidth <= 768 ||
+    window.matchMedia('(orientation: portrait) and (max-width: 900px)').matches ||
+    /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  )
+}
+
 export default function HomePage() {
+  const [isMobile, setIsMobile] = useState(checkIsMobile)
   const [introVisible, setIntroVisible] = useState(true)
+  const [introFade, setIntroFade] = useState(false)
   const [mainVisible, setMainVisible] = useState(false)
   const [loadPercent, setLoadPercent] = useState(0)
   const [litSegs, setLitSegs] = useState(0)
@@ -10,6 +21,8 @@ export default function HomePage() {
   const introVideoRef = useRef(null)
   const bgVideoRef = useRef(null)
   const TOTAL_SEGS = 16
+
+  const introVideoSrc = isMobile ? '/assets/mobile1.mp4' : '/assets/desktop.mp4'
 
   const telemetryLines = [
     'INITIALIZING ARENA SYSTEMS // SECTOR 07...',
@@ -20,69 +33,216 @@ export default function HomePage() {
   ]
   const [telemetryIdx, setTelemetryIdx] = useState(0)
 
+  // Listen for device orientation / viewport resize
   useEffect(() => {
-    const vid = introVideoRef.current
-    if (!vid) return
-
-    const tryPlay = vid.play()
-    if (tryPlay !== undefined) {
-      tryPlay.catch(() => setPlayPrompt(true))
+    const handleResize = () => {
+      setIsMobile(checkIsMobile())
     }
-
-    // Animate loading bar
-    let pct = 0
-    const interval = setInterval(() => {
-      pct = Math.min(pct + Math.random() * 4 + 1, 100)
-      setLoadPercent(Math.round(pct))
-      setLitSegs(Math.round((pct / 100) * TOTAL_SEGS))
-      if (pct >= 100) clearInterval(interval)
-    }, 120)
-
-    // Telemetry
-    const telTimer = setInterval(() => {
-      setTelemetryIdx(i => Math.min(i + 1, telemetryLines.length - 1))
-    }, 1800)
-
-    // Auto-dismiss after video ends or 12s
-    const dismissTimer = setTimeout(() => dismissIntro(), 12000)
-
-    vid.addEventListener('ended', dismissIntro)
-
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', handleResize)
     return () => {
-      clearInterval(interval)
-      clearInterval(telTimer)
-      clearTimeout(dismissTimer)
-      vid.removeEventListener('ended', dismissIntro)
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleResize)
     }
   }, [])
 
-  function dismissIntro() {
-    setIntroVisible(false)
-    setTimeout(() => setMainVisible(true), 300)
-    if (bgVideoRef.current) bgVideoRef.current.play().catch(() => {})
+  const dismissIntro = useCallback(() => {
+    setIntroFade(true)
+    setTimeout(() => {
+      setIntroVisible(false)
+      setMainVisible(true)
+    }, 450)
+
+    const bgVid = bgVideoRef.current
+    if (bgVid) {
+      bgVid.muted = true
+      bgVid.defaultMuted = true
+      bgVid.play().catch(() => {})
+    }
+  }, [])
+
+  const replayIntro = () => {
+    setIntroVisible(true)
+    setIntroFade(false)
+    setLoadPercent(0)
+    setLitSegs(0)
+    setTelemetryIdx(0)
+    const vid = introVideoRef.current
+    if (vid) {
+      vid.currentTime = 0
+      vid.muted = true
+      vid.defaultMuted = true
+      vid.play().catch(() => {})
+    }
   }
 
   function handlePlayOrb() {
     setPlayPrompt(false)
     const vid = introVideoRef.current
-    if (vid) vid.play().catch(() => {})
+    if (vid) {
+      vid.muted = true
+      vid.defaultMuted = true
+      vid.play().catch(() => {})
+    }
+    const bgVid = bgVideoRef.current
+    if (bgVid) {
+      bgVid.muted = true
+      bgVid.defaultMuted = true
+      bgVid.play().catch(() => {})
+    }
   }
+
+  // Keyboard shortcut [ESC] to skip intro
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && introVisible) {
+        dismissIntro()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [introVisible, dismissIntro])
+
+  // Intro video playback and autoplay enforcement
+  useEffect(() => {
+    if (!introVisible) return
+    const vid = introVideoRef.current
+    if (!vid) return
+
+    // Explicitly configure DOM properties for strict browser autoplay compliance
+    vid.muted = true
+    vid.defaultMuted = true
+    vid.playsInline = true
+    vid.setAttribute('playsinline', '')
+    vid.setAttribute('webkit-playsinline', '')
+
+    const startPlay = () => {
+      vid.muted = true
+      vid.defaultMuted = true
+      const p = vid.play()
+      if (p !== undefined) {
+        p.then(() => {
+          setPlayPrompt(false)
+        }).catch(() => {
+          setPlayPrompt(true)
+        })
+      }
+    }
+
+    startPlay()
+    vid.addEventListener('canplay', startPlay, { once: true })
+
+    const handleTimeUpdate = () => {
+      if (vid.duration) {
+        const pct = Math.min(100, Math.round((vid.currentTime / vid.duration) * 100))
+        setLoadPercent(pct)
+        setLitSegs(Math.round((pct / 100) * TOTAL_SEGS))
+
+        const ratio = vid.currentTime / vid.duration
+        if (ratio < 0.25) setTelemetryIdx(0)
+        else if (ratio < 0.50) setTelemetryIdx(1)
+        else if (ratio < 0.75) setTelemetryIdx(2)
+        else if (ratio < 0.95) setTelemetryIdx(3)
+        else setTelemetryIdx(4)
+      }
+    }
+
+    const handleEnded = () => {
+      dismissIntro()
+    }
+
+    vid.addEventListener('timeupdate', handleTimeUpdate)
+    vid.addEventListener('ended', handleEnded)
+
+    // Fallback animation if video metadata is loading or paused
+    const animInterval = setInterval(() => {
+      if (!vid.duration || vid.paused) {
+        setLoadPercent(prev => {
+          if (prev >= 100) return 100
+          const next = Math.min(100, prev + 2)
+          setLitSegs(Math.round((next / 100) * TOTAL_SEGS))
+          return next
+        })
+      }
+    }, 180)
+
+    // Auto-dismiss safety timer (15 seconds)
+    const safetyDismiss = setTimeout(() => {
+      dismissIntro()
+    }, 15000)
+
+    // Global interaction listener: first touch/click anywhere immediately unlocks playback
+    const unlockPlay = () => {
+      if (vid && vid.paused) {
+        vid.muted = true
+        vid.defaultMuted = true
+        vid.play().catch(() => {})
+      }
+      if (bgVideoRef.current && bgVideoRef.current.paused) {
+        bgVideoRef.current.muted = true
+        bgVideoRef.current.defaultMuted = true
+        bgVideoRef.current.play().catch(() => {})
+      }
+      setPlayPrompt(false)
+    }
+
+    window.addEventListener('click', unlockPlay, { once: true, passive: true })
+    window.addEventListener('touchstart', unlockPlay, { once: true, passive: true })
+
+    return () => {
+      vid.removeEventListener('canplay', startPlay)
+      vid.removeEventListener('timeupdate', handleTimeUpdate)
+      vid.removeEventListener('ended', handleEnded)
+      clearInterval(animInterval)
+      clearTimeout(safetyDismiss)
+      window.removeEventListener('click', unlockPlay)
+      window.removeEventListener('touchstart', unlockPlay)
+    }
+  }, [introVideoSrc, introVisible, dismissIntro])
+
+  // Background hero video playback
+  useEffect(() => {
+    const bgVid = bgVideoRef.current
+    if (!bgVid) return
+
+    bgVid.muted = true
+    bgVid.defaultMuted = true
+    bgVid.playsInline = true
+    bgVid.setAttribute('playsinline', '')
+    bgVid.setAttribute('webkit-playsinline', '')
+
+    const startBg = () => {
+      bgVid.muted = true
+      bgVid.defaultMuted = true
+      bgVid.play().catch(() => {})
+    }
+
+    startBg()
+    bgVid.addEventListener('canplay', startBg, { once: true })
+
+    return () => {
+      bgVid.removeEventListener('canplay', startBg)
+    }
+  }, [])
 
   return (
     <>
       {/* Intro */}
       {introVisible && (
-        <div className={`intro-screen ${!introVisible ? 'fade-out' : ''}`}>
+        <div className={`intro-screen ${introFade ? 'fade-out' : ''}`}>
           <div className="intro-video-container">
             <video
               ref={introVideoRef}
+              key={introVideoSrc}
               className="intro-video"
+              autoPlay
               muted
               playsInline
+              webkit-playsinline="true"
               preload="auto"
               poster="/assets/poster.jpg"
             >
-              <source src="/assets/desktop.mp4" type="video/mp4" />
+              <source src={introVideoSrc} type="video/mp4" />
             </video>
 
             <div className="video-hud">
@@ -151,8 +311,10 @@ export default function HomePage() {
         <video
           ref={bgVideoRef}
           className="bg-ambient-video"
+          autoPlay
           muted
           playsInline
+          webkit-playsinline="true"
           loop
           preload="auto"
         >
@@ -173,7 +335,7 @@ export default function HomePage() {
               <span className="brand-title">CONNECT CLUB</span>
             </Link>
             <div className="header-controls">
-              <button className="cyber-btn cyber-btn-ghost" onClick={dismissIntro}>
+              <button className="cyber-btn cyber-btn-ghost" onClick={replayIntro}>
                 <span className="btn-icon">↺</span>
                 <span className="btn-text">REPLAY INTRO</span>
               </button>
