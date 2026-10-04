@@ -298,6 +298,19 @@ body {
   box-shadow: 0 0 20px rgba(0,240,255,0.3);
 }
 .glow-cyan { box-shadow: 0 0 12px rgba(0,240,255,0.2); }
+.cyber-btn-whatsapp {
+  background: linear-gradient(135deg, rgba(37, 211, 102, 0.2), rgba(37, 211, 102, 0.08));
+  border: 1px solid rgba(37, 211, 102, 0.55);
+  color: #25D366;
+  text-decoration: none;
+}
+.cyber-btn-whatsapp:hover {
+  background: rgba(37, 211, 102, 0.28);
+  box-shadow: 0 0 22px rgba(37, 211, 102, 0.45);
+  color: #fff;
+  border-color: #25D366;
+}
+.glow-whatsapp { box-shadow: 0 0 14px rgba(37, 211, 102, 0.25); }
 .cyber-btn-ghost {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
@@ -2435,7 +2448,7 @@ select option { background: #0d1117; color: #fff; }
     print-color-adjust: exact !important;
     background: #fff !important;
   }
-  .bg-ambient-video, .ambient-overlay, .reg-header, .ticket-actions, .ticket-intro {
+  .bg-ambient-video, .ambient-overlay, .reg-header, .ticket-actions, .ticket-actions-container, .ticket-intro {
     display: none !important;
   }
   .reg-body-wrap { 

@@ -190,7 +190,17 @@ export default function PaymentPage() {
             </div>
             <h2>Registration Complete!</h2>
             <p>Your team has been successfully enrolled for Battlegrounds 2026. Your payment is under review — you'll be notified once verified.</p>
-            <Link to="/" className="success-home-btn">Return to Home</Link>
+            <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', marginTop: '1.2rem', flexWrap: 'wrap' }}>
+              <a
+                href="https://chat.whatsapp.com/ITxG6Gqm2bgEoaGbpECV0Q"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cyber-btn cyber-btn-whatsapp glow-whatsapp"
+              >
+                JOIN WHATSAPP GROUP
+              </a>
+              <Link to="/ticket" className="success-home-btn" style={{ margin: 0 }}>View Ticket</Link>
+            </div>
           </div>
         </div>
       )}
