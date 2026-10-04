@@ -9,7 +9,7 @@ import {
 } from '../store/registrationStore'
 
 // ── CONSTANTS ──────────────────────────────────────────────
-const ADMIN_PASSWORD = 'admin2026'
+const ADMIN_PASSWORD = 'admin@cc'
 
 const COLORS = {
   cyan: '#00f0ff', magenta: '#ff2ef7', green: '#22c55e',
@@ -97,22 +97,55 @@ function RegDetailModal({ reg, onClose, onStatusChange }) {
     <div className="admin-modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="admin-modal">
         <div className="admin-modal-header">
-          <span className="admin-modal-title">REGISTRATION DETAILS // {reg.id}</span>
+          <div>
+            <span className="admin-modal-title" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: '1.1rem' }}>{reg.teamName}</span>
+            <div style={{ fontSize: '0.75rem', color: '#00f0ff', marginTop: '2px', fontWeight: 600, letterSpacing: '0.02em', fontFamily: "'Inter', sans-serif" }}>
+              TEAM ID: <strong style={{ color: '#fff' }}>{reg.bgId || reg.id}</strong>
+            </div>
+          </div>
           <button className="admin-modal-close" onClick={onClose}>✕</button>
         </div>
-        <div className="admin-modal-body">
+        <div className="admin-modal-body" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.85rem 1.1rem',
+            background: 'rgba(0, 240, 255, 0.05)',
+            border: '1px solid rgba(0, 240, 255, 0.22)',
+            borderRadius: 10,
+            marginBottom: '1.2rem'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.45)', marginBottom: 2 }}>OFFICIAL TEAM ID</div>
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#00f0ff', letterSpacing: '0.02em' }}>{reg.bgId || reg.id}</div>
+            </div>
+            <div style={{
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              padding: '0.28rem 0.75rem',
+              borderRadius: 6,
+              textTransform: 'uppercase',
+              background: reg.status === 'verified' ? 'rgba(34,197,94,0.15)' : reg.status === 'rejected' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)',
+              color: reg.status === 'verified' ? '#22c55e' : reg.status === 'rejected' ? '#ef4444' : '#eab308',
+              border: `1px solid ${reg.status === 'verified' ? 'rgba(34,197,94,0.3)' : reg.status === 'rejected' ? 'rgba(239,68,68,0.3)' : 'rgba(234,179,8,0.3)'}`
+            }}>
+              {reg.status || 'PENDING'}
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
             {[
               ['Team Name', reg.teamName],
+              ['Team ID', reg.bgId || reg.id],
               ['Team Size', `${reg.teamSize} Members`],
               ['Total Fee', `₹${reg.totalFee}`],
-              ['Registration ID', reg.id],
               ['Registered On', new Date(reg.timestamp).toLocaleString('en-IN')],
               ['UTR Number', reg.utr || '—'],
             ].map(([l, v]) => (
               <div key={l} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '0.7rem 0.9rem' }}>
-                <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.35)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{l}</div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff', fontFamily: l === 'Registration ID' || l === 'UTR Number' ? "'Orbitron', monospace" : 'inherit', fontSize: l === 'Registration ID' ? '0.68rem' : '0.85rem', color: l === 'Total Fee' ? '#22c55e' : '#fff' }}>{v}</div>
+                <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{l}</div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 600, color: l === 'Team ID' ? '#00f0ff' : l === 'Total Fee' ? '#22c55e' : '#fff' }}>{v}</div>
               </div>
             ))}
           </div>
@@ -126,7 +159,7 @@ function RegDetailModal({ reg, onClose, onStatusChange }) {
                 border: `1px solid ${m.isLead ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.06)'}`,
                 borderRadius: 8, marginBottom: '0.5rem',
               }}>
-                <span style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.75rem', fontWeight: 900, color: '#00f0ff', minWidth: 32 }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', fontWeight: 800, color: m.isLead ? '#ffd700' : '#00f0ff', background: m.isLead ? 'rgba(255,215,0,0.1)' : 'rgba(0,240,255,0.08)', border: `1px solid ${m.isLead ? 'rgba(255,215,0,0.25)' : 'rgba(0,240,255,0.2)'}`, borderRadius: 6, padding: '0.2rem 0.45rem', minWidth: 32, textAlign: 'center' }}>
                   #{String(m.memberNumber || i + 1).padStart(2, '0')}
                 </span>
                 <div style={{ flex: 1 }}>
@@ -231,7 +264,7 @@ function DashboardView({ regs, analytics, onNav, onSelectReg }) {
           <table className="reg-table">
             <thead>
               <tr>
-                <th>ID</th><th>Team Name (Click to View)</th><th>Lead</th><th>Size</th><th>Fee</th><th>Status</th>
+                <th>Team Name (Click to View)</th><th>Lead</th><th>Size</th><th>Fee</th><th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -240,9 +273,8 @@ function DashboardView({ regs, analytics, onNav, onSelectReg }) {
                   key={r.id} 
                   onClick={() => onSelectReg && onSelectReg(r)} 
                   style={{ cursor: 'pointer' }}
-                  title="Click to view all squad members"
+                  title="Click on team name to view Team ID and squad details"
                 >
-                  <td><span className="reg-id-cell">{r.bgId || r.id}</span></td>
                   <td>
                     <span className="team-name-cell" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                       {r.teamName} <span style={{ fontSize: '0.62rem', color: '#00f0ff', opacity: 0.8 }}>🔍</span>
@@ -395,7 +427,6 @@ function RegistrationsView({ regs, onStatusChange, onDelete, onSelectReg }) {
           <table className="reg-table">
             <thead>
               <tr>
-                <th>Team ID</th>
                 <th>Team Name (Click to View)</th>
                 <th>Team Leader</th>
                 <th>Branch / Year</th>
@@ -411,9 +442,8 @@ function RegistrationsView({ regs, onStatusChange, onDelete, onSelectReg }) {
                   key={r.id} 
                   onClick={() => onSelectReg(r)}
                   style={{ cursor: 'pointer' }}
-                  title="Click to view all squad members and lead info"
+                  title="Click on team name to view Team ID and squad details"
                 >
-                  <td><span className="reg-id-cell">{r.bgId || r.id}</span></td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className="team-name-cell" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{r.teamName}</span>
@@ -425,7 +455,7 @@ function RegistrationsView({ regs, onStatusChange, onDelete, onSelectReg }) {
                   <td>
                     <div style={{ fontWeight: 600, color: '#fff' }}>{r.lead?.name || '—'}</div>
                     {r.lead?.roll && (
-                      <div style={{ fontSize: '0.68rem', color: '#00f0ff', fontFamily: "'Orbitron', monospace" }}>{r.lead.roll}</div>
+                      <div style={{ fontSize: '0.68rem', color: '#00f0ff', fontFamily: "'Inter', sans-serif" }}>{r.lead.roll}</div>
                     )}
                   </td>
                   <td>
@@ -512,7 +542,7 @@ function AttendanceView({ allParticipants, onAttendanceChange }) {
               {filtered.map((p, index) => (
                 <tr key={`${p.regId}-${p.roll || index}-${index}`}>
                   <td style={{ fontWeight: 600 }}>{p.name}</td>
-                  <td style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.75rem', color: '#00f0ff' }}>{p.roll}</td>
+                  <td style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: '#00f0ff' }}>{p.roll}</td>
                   <td><span className="team-name-cell">{p.teamName}</span></td>
                   <td style={{ textAlign: 'center' }}>
                     <input type="checkbox" checked={!!p.morningAttendance} onChange={e => onAttendanceChange(p.regId, p.isLead, p.memberIndex, 'morningAttendance', e.target.checked)} style={{ transform: 'scale(1.3)', cursor: 'pointer' }} />
@@ -697,7 +727,7 @@ function PaymentsView({ regs, onStatusChange, onSelectReg }) {
         <div className="reg-table-wrapper">
           <table className="reg-table">
             <thead>
-              <tr><th>ID</th><th>Team Name (Click to View)</th><th>Lead</th><th>Amount</th><th>UTR</th><th>Screenshot</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Team Name (Click to View)</th><th>Lead</th><th>Amount</th><th>UTR</th><th>Screenshot</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {filtered.map(r => (
@@ -707,7 +737,6 @@ function PaymentsView({ regs, onStatusChange, onSelectReg }) {
                   style={{ cursor: 'pointer' }}
                   title="Click to view all squad members and payment info"
                 >
-                  <td><span className="reg-id-cell">{r.bgId || r.id}</span></td>
                   <td>
                     <span className="team-name-cell" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}>
                       {r.teamName} <span style={{ fontSize: '0.62rem', color: '#00f0ff', opacity: 0.8 }}>🔍</span>
@@ -715,7 +744,7 @@ function PaymentsView({ regs, onStatusChange, onSelectReg }) {
                   </td>
                   <td>{r.lead?.name || '—'}</td>
                   <td style={{ color: '#22c55e', fontWeight: 700 }}>₹{r.totalFee}</td>
-                  <td><span style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.65rem', color: 'rgba(0,240,255,0.7)' }}>{r.utr || '—'}</span></td>
+                  <td><span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.65rem', color: 'rgba(0,240,255,0.7)' }}>{r.utr || '—'}</span></td>
                   <td>
                     {r.screenshotUrl
                       ? <img src={r.screenshotUrl} alt="ss" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4, border: '1px solid rgba(255,255,255,0.1)' }} />
@@ -892,9 +921,7 @@ function AdminLogin({ onLogin }) {
           {error && <div className="admin-login-error">{error}</div>}
           <button type="submit" className="admin-login-btn">ACCESS CONTROL PANEL</button>
         </form>
-        <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)' }}>
-          Hint: admin2026
-        </div>
+
       </div>
     </div>
   )

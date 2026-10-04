@@ -157,7 +157,7 @@ body {
   margin-bottom: 0.5rem;
 }
 .arena-title-text {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif; font-weight: 700;
   font-size: 0.6rem;
   letter-spacing: 0.15em;
   color: var(--cyan);
@@ -1632,7 +1632,7 @@ select option { background: #0d1117; color: #fff; }
 .stat-icon.purple { background: rgba(168,85,247,0.12); color: #a855f7; }
 .stat-info { flex: 1; min-width: 0; }
 .stat-value {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif; font-weight: 800;
   font-size: 1.6rem;
   font-weight: 900;
   color: #fff;
@@ -1758,7 +1758,7 @@ select option { background: #0d1117; color: #fff; }
 .reg-table tr:last-child td { border-bottom: none; }
 .team-name-cell { font-weight: 700; color: #fff; }
 .reg-id-cell {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif; font-weight: 600;
   font-size: 0.62rem;
   color: var(--cyan);
 }
@@ -1847,7 +1847,7 @@ select option { background: #0d1117; color: #fff; }
   justify-content: space-between;
 }
 .admin-modal-title {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif; font-weight: 700;
   font-size: 0.82rem;
   letter-spacing: 0.1em;
   color: var(--cyan);
@@ -2488,4 +2488,67 @@ select option { background: #0d1117; color: #fff; }
   .ft-bottom-row { flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
   .ft-right-qr { transform: translate(-50%, -50%); top: 50%; left: 50%; }
   .ft-barcode-section { display: none; }
+}
+
+/* ============================================================
+   PROFESSIONAL TYPOGRAPHY OVERRIDES (ADMIN & REGISTRATION)
+   ============================================================ */
+.admin-layout,
+.admin-layout *,
+.admin-modal,
+.admin-modal *,
+.reg-table,
+.reg-table th,
+.reg-table td,
+.stat-card,
+.stat-value,
+.stat-label,
+.table-title,
+.filter-bar,
+.filter-chip,
+.admin-search input,
+.admin-sidebar,
+.admin-nav-item,
+.reg-body,
+.reg-body *,
+.reg-card,
+.reg-form,
+.review-member,
+.review-name,
+.review-roll,
+.review-idx,
+.member-tag {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.reg-table th {
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  color: #94a3b8 !important;
+}
+
+.team-name-cell {
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+
+.admin-modal-title {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: #ffffff !important;
+}
+
+.stat-value {
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.stat-label {
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
 }
