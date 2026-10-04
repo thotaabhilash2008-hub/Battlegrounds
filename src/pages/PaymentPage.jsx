@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { addRegistration } from '../store/registrationStore'
 import qrScannerImg from '../assets/qr scanner.jpeg'
+import Tesseract from 'tesseract.js'
 
 export default function PaymentPage() {
   const navigate = useNavigate()
@@ -14,6 +15,7 @@ export default function PaymentPage() {
   const [utr, setUtr] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [ocrStatus, setOcrStatus] = useState('idle')
 
   const data = JSON.parse(sessionStorage.getItem('bg_registration') || '{}')
   const teamSize = parseInt(data.teamSize) || 5
@@ -33,8 +35,66 @@ export default function PaymentPage() {
     setFileName(file.name)
     setFileSize((file.size / 1024).toFixed(1) + ' KB')
     const reader = new FileReader()
-    reader.onload = ev => setPreviewSrc(ev.target.result)
+    reader.onload = ev => {
+      setPreviewSrc(ev.target.result)
+      performOCR(file)
+    }
     reader.readAsDataURL(file)
+  }
+
+  async function performOCR(imageFile) {
+    setOcrStatus('scanning')
+    try {
+      const { data: { text } } = await Tesseract.recognize(
+        imageFile,
+        'eng',
+        { logger: m => console.log(m) }
+      )
+      console.log('Raw OCR Text:', text)
+      
+      let foundUtr = null;
+
+      // 1. Try to find a Razorpay-style payment ID (starts with pay_ followed by alphanumeric chars)
+      const razorpayMatch = text.match(/pay_[a-zA-Z0-9]+/i)
+      if (razorpayMatch) {
+        foundUtr = razorpayMatch[0]
+      }
+
+      // 2. Try to find a standard 12-digit UPI UTR
+      if (!foundUtr) {
+        const extractUtr = (str) => {
+          const match = str.match(/(?:^|\D)(\d{12})(?:\D|$)/)
+          return match ? match[1] : null
+        }
+        
+        foundUtr = extractUtr(text)
+        
+        if (!foundUtr) {
+          const cleanedText = text.replace(/[\s-:]/g, '')
+          foundUtr = extractUtr(cleanedText)
+        }
+        
+        if (!foundUtr) {
+          const typoCleaned = text
+            .replace(/O/g, '0')
+            .replace(/o/g, '0')
+            .replace(/[lI]/g, '1')
+            .replace(/S/g, '5')
+            .replace(/[\s-:]/g, '')
+          foundUtr = extractUtr(typoCleaned)
+        }
+      }
+
+      if (foundUtr) {
+        setUtr(foundUtr)
+        setOcrStatus('success')
+      } else {
+        setOcrStatus('error')
+      }
+    } catch (err) {
+      console.error('OCR Error:', err)
+      setOcrStatus('error')
+    }
   }
 
   function removeFile() {
@@ -42,6 +102,7 @@ export default function PaymentPage() {
     setPreviewSrc('')
     setFileName('')
     setFileSize('')
+    setOcrStatus('idle')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -147,15 +208,41 @@ export default function PaymentPage() {
 
             <div className="utr-field">
               <label htmlFor="utr-input">UTR / Transaction Reference Number</label>
-              <input
-                id="utr-input"
-                type="text"
-                placeholder="e.g. 412345678901"
-                maxLength={22}
-                value={utr}
-                onChange={e => setUtr(e.target.value)}
-              />
-              <div className="utr-hint">Enter the 12-digit UTR number from your UPI/bank transaction</div>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="utr-input"
+                  type="text"
+                  placeholder="e.g. 412345678901"
+                  maxLength={22}
+                  value={utr}
+                  onChange={e => {
+                    setUtr(e.target.value)
+                    if (ocrStatus === 'error' || ocrStatus === 'success') {
+                      setOcrStatus('idle')
+                    }
+                  }}
+                  disabled={ocrStatus === 'scanning'}
+                />
+              </div>
+              
+              {ocrStatus === 'scanning' && (
+                <div style={{ color: 'var(--neon-cyan)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                  Scanning screenshot for transaction ID...
+                </div>
+              )}
+              {ocrStatus === 'success' && (
+                <div style={{ color: '#4ade80', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                  Transaction ID automatically detected!
+                </div>
+              )}
+              {ocrStatus === 'error' && (
+                <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                  Transaction ID not found. Please enter it manually.
+                </div>
+              )}
+              {ocrStatus === 'idle' && (
+                <div className="utr-hint">Enter the 12-digit UTR number from your UPI/bank transaction</div>
+              )}
             </div>
 
             <div className="pay-actions">

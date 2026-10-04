@@ -88,6 +88,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // ── REGISTRATION DETAIL MODAL ──────────────────────────────
 function RegDetailModal({ reg, onClose, onStatusChange }) {
+  const [isImgHovered, setIsImgHovered] = useState(false)
   if (!reg) return null
   const allMembers = [
     { ...reg.lead, memberNumber: 1, isLead: true },
@@ -183,7 +184,34 @@ function RegDetailModal({ reg, onClose, onStatusChange }) {
           {reg.screenshotUrl && (
             <div style={{ marginBottom: '1rem' }}>
               <div className="section-title" style={{ marginBottom: '0.5rem' }}>Payment Screenshot</div>
-              <img src={reg.screenshotUrl} alt="Payment" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)' }} />
+              <img 
+                src={reg.screenshotUrl} 
+                alt="Payment" 
+                onMouseEnter={() => setIsImgHovered(true)}
+                onMouseLeave={() => setIsImgHovered(false)}
+                style={isImgHovered ? {
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%) scale(1)',
+                  maxHeight: '95vh',
+                  maxWidth: '95vw',
+                  objectFit: 'contain',
+                  zIndex: 999999,
+                  borderRadius: 12,
+                  boxShadow: '0 0 0 100vmax rgba(0,0,0,0.85), 0 20px 50px rgba(0,0,0,0.5)',
+                  cursor: 'zoom-out',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+                } : { 
+                  width: '100%', 
+                  maxHeight: 200, 
+                  objectFit: 'contain', 
+                  borderRadius: 8, 
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  cursor: 'zoom-in',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+                }} 
+              />
             </div>
           )}
         </div>
