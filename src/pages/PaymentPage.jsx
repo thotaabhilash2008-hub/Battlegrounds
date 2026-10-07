@@ -4,6 +4,54 @@ import { addRegistration } from '../store/registrationStore'
 import qrScannerImg from '../assets/qr scanner.jpeg'
 import Tesseract from 'tesseract.js'
 
+// Compress image before storing in Firestore to stay well under the 1MB limit
+function compressImage(file, maxWidth = 1000, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = reject
+    reader.onload = ev => {
+      const img = new Image()
+      img.onerror = reject
+      img.onload = () => {
+        let width = img.width
+        let height = img.height
+
+        if (width > maxWidth || height > maxWidth) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width)
+            width = maxWidth
+          } else {
+            width = Math.round((width * maxWidth) / height)
+            height = maxWidth
+          }
+        }
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+
+        let compressed = canvas.toDataURL('image/jpeg', quality)
+
+        // Safety fallback: if still large (>600KB), compress further
+        if (compressed.length > 600000) {
+          const c2 = document.createElement('canvas')
+          c2.width = Math.round(width * 0.7)
+          c2.height = Math.round(height * 0.7)
+          const ctx2 = c2.getContext('2d')
+          ctx2.drawImage(img, 0, 0, c2.width, c2.height)
+          compressed = c2.toDataURL('image/jpeg', 0.5)
+        }
+
+        resolve(compressed)
+      }
+      img.src = ev.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
 export default function PaymentPage() {
   const navigate = useNavigate()
   const bgRef = useRef(null)
@@ -26,20 +74,26 @@ export default function PaymentPage() {
     if (!data.teamName) navigate('/register')
   }, [])
 
-  const isReady = hasFile && utr.trim().length >= 6
+  const isReady = hasFile && !!previewSrc && utr.trim().length >= 6
 
-  function handleFileChange(e) {
+  async function handleFileChange(e) {
     const file = e.target.files[0]
     if (!file) return
     setHasFile(true)
     setFileName(file.name)
     setFileSize((file.size / 1024).toFixed(1) + ' KB')
-    const reader = new FileReader()
-    reader.onload = ev => {
-      setPreviewSrc(ev.target.result)
-      performOCR(file)
+
+    try {
+      const compressedData = await compressImage(file, 1000, 0.7)
+      setPreviewSrc(compressedData)
+    } catch (err) {
+      console.warn('Image compression fallback:', err)
+      const reader = new FileReader()
+      reader.onload = ev => setPreviewSrc(ev.target.result)
+      reader.readAsDataURL(file)
     }
-    reader.readAsDataURL(file)
+
+    performOCR(file)
   }
 
   async function performOCR(imageFile) {
@@ -107,23 +161,24 @@ export default function PaymentPage() {
   }
 
   async function handleConfirm() {
-    if (!isReady) return
+    if (!isReady || submitting) return
     setSubmitting(true)
-    // Save to store
-    const regData = {
-      ...data,
-      utr: utr.trim(),
-      screenshotUrl: previewSrc,
-    }
     
     try {
+      const regData = {
+        ...data,
+        utr: utr.trim(),
+        screenshotUrl: previewSrc,
+      }
+
       const saved = await addRegistration(regData)
       sessionStorage.removeItem('bg_registration')
       sessionStorage.setItem('bg_auth_id', saved.id)
       navigate('/ticket')
     } catch (e) {
-      console.error(e)
-      alert('Error submitting registration. Please try again.')
+      console.error('Registration submission error:', e)
+      const msg = e?.message || 'Please check your connection and try again.'
+      alert(`Error submitting registration: ${msg}`)
     } finally {
       setSubmitting(false)
     }
