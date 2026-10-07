@@ -80,13 +80,13 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const bgRef = useRef(null)
   const [step, setStep] = useState(1)
-  const [teamSize, setTeamSize] = useState(4)
+  const [teamSize, setTeamSize] = useState(2)
   const [shakeField, setShakeField] = useState(null)
 
   const [lead, setLead] = useState({
     teamName: '', name: '', roll: '', phone: '', year: '', branch: '', cluster: '', section: ''
   })
-  const [members, setMembers] = useState(Array.from({ length: 3 }, () => emptyMember()))
+  const [members, setMembers] = useState(Array.from({ length: 1 }, () => emptyMember()))
 
   useEffect(() => {
     if (bgRef.current) bgRef.current.play().catch(() => {})
@@ -307,12 +307,12 @@ export default function RegisterPage() {
                 <div className="reg-field">
                   <label>Team Size (Members)</label>
                   <div className="team-size-selector">
-                    {[4, 5, 6].map(n => (
+                    {[2, 3, 4, 5, 6].map(n => (
                       <button key={n} type="button" className={`size-btn ${teamSize === n ? 'active' : ''}`}
                         onClick={() => setTeamSize(n)}>{n}</button>
                     ))}
                   </div>
-                  <span className="field-hint">Select between 4 to 6 members</span>
+                  <span className="field-hint">Select between 2 to 6 members</span>
                 </div>
 
                 <div className="fee-card">
@@ -399,7 +399,7 @@ export default function RegisterPage() {
               <div className="reg-section active">
                 <div className="reg-section-header">
                   <h1 className="reg-title">Squad Members Details</h1>
-                  <p className="reg-subtitle">Enter details for remaining {teamSize - 1} squad members. Team Lead is Member #01.</p>
+                  <p className="reg-subtitle">Enter details for remaining {teamSize - 1} squad {teamSize - 1 === 1 ? 'member' : 'members'}. Team Lead is Member #01.</p>
                 </div>
                 <div className="members-container">
                   {members.map((m, i) => (

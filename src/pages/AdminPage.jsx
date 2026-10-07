@@ -805,7 +805,7 @@ function SettingsView() {
   const [regOpen, setRegOpen] = useState(true)
   const [maxTeams, setMaxTeams] = useState('100')
   const [rate, setRate] = useState('50')
-  const [minSize, setMinSize] = useState('4')
+  const [minSize, setMinSize] = useState('2')
   const [maxSize, setMaxSize] = useState('6')
   const [saved, setSaved] = useState(false)
 

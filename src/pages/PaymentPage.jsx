@@ -18,7 +18,7 @@ export default function PaymentPage() {
   const [ocrStatus, setOcrStatus] = useState('idle')
 
   const data = JSON.parse(sessionStorage.getItem('bg_registration') || '{}')
-  const teamSize = parseInt(data.teamSize) || 5
+  const teamSize = parseInt(data.teamSize) || 2
   const amount = data.totalFee || teamSize * 50
 
   useEffect(() => {
