@@ -2565,3 +2565,313 @@ select option { background: #0d1117; color: #fff; }
   font-weight: 500 !important;
   color: #94a3b8 !important;
 }
+
+/* ══════════════════════════════════════════════════════════
+   REGISTRATION PORTAL CLOSED — HIGHLIGHTED CYBERPUNK STYLES
+   ══════════════════════════════════════════════════════════ */
+
+.cyber-btn-closed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  text-decoration: none;
+  background: linear-gradient(135deg, rgba(255, 0, 85, 0.25), rgba(255, 0, 85, 0.1));
+  border: 1.5px solid #ff0055;
+  color: #ff3366;
+  box-shadow: 0 0 18px rgba(255, 0, 85, 0.4);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+.cyber-btn-closed:hover {
+  background: rgba(255, 0, 85, 0.35);
+  box-shadow: 0 0 28px rgba(255, 0, 85, 0.65), 0 0 10px #ff0055;
+  color: #fff;
+  border-color: #ff3366;
+  transform: translateY(-1px);
+}
+.glow-red {
+  box-shadow: 0 0 16px rgba(255, 0, 85, 0.45);
+}
+
+.cyber-btn-register-closed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2.2rem;
+  background: linear-gradient(135deg, rgba(255, 0, 85, 0.28), rgba(220, 38, 38, 0.15));
+  border: 1.8px solid #ff0055;
+  border-radius: 8px;
+  color: #ff4d6d;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 0 30px rgba(255, 0, 85, 0.4), inset 0 0 15px rgba(255, 0, 85, 0.15);
+  animation: pulseClosedGlow 2.5s ease-in-out infinite;
+}
+.cyber-btn-register-closed:hover {
+  background: rgba(255, 0, 85, 0.4);
+  box-shadow: 0 0 45px rgba(255, 0, 85, 0.7), 0 4px 25px rgba(255, 0, 85, 0.4);
+  color: #fff;
+  border-color: #ff4d6d;
+  transform: translateY(-2px);
+}
+@keyframes pulseClosedGlow {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(255, 0, 85, 0.35), inset 0 0 12px rgba(255, 0, 85, 0.12);
+    border-color: #ff0055;
+  }
+  50% {
+    box-shadow: 0 0 42px rgba(255, 0, 85, 0.65), inset 0 0 22px rgba(255, 0, 85, 0.25);
+    border-color: #ff3366;
+  }
+}
+
+.cyber-btn-explore-highlight {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+  border-color: rgba(0, 240, 255, 0.4);
+}
+.cyber-btn-explore-highlight:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+}
+
+/* Hero Closed Highlight Banner */
+.hero-closed-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: 680px;
+  width: 100%;
+  padding: 1.2rem 1.8rem;
+  background: linear-gradient(135deg, rgba(255, 0, 85, 0.18) 0%, rgba(18, 10, 24, 0.8) 50%, rgba(255, 183, 3, 0.12) 100%);
+  border: 1.8px solid rgba(255, 0, 85, 0.65);
+  border-radius: 14px;
+  box-shadow: 0 0 40px rgba(255, 0, 85, 0.3), inset 0 0 24px rgba(255, 0, 85, 0.1);
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+  animation: bannerHighlightPulse 3s ease-in-out infinite;
+}
+@keyframes bannerHighlightPulse {
+  0%, 100% {
+    border-color: rgba(255, 0, 85, 0.6);
+    box-shadow: 0 0 32px rgba(255, 0, 85, 0.25);
+  }
+  50% {
+    border-color: #ff3366;
+    box-shadow: 0 0 50px rgba(255, 0, 85, 0.5), 0 0 20px rgba(255, 183, 3, 0.35);
+  }
+}
+.closed-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.85rem;
+  background: rgba(255, 0, 85, 0.25);
+  border: 1px solid rgba(255, 0, 85, 0.55);
+  border-radius: 20px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #ff758f;
+  text-transform: uppercase;
+}
+.closed-banner-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #ffffff 0%, #ff6b8b 30%, #ff0055 70%, #ffb703 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 14px rgba(255, 0, 85, 0.5));
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.closed-warning-icon {
+  -webkit-text-fill-color: initial;
+}
+.closed-banner-desc {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.55;
+  text-align: center;
+  margin: 0;
+}
+
+/* Dots and Indicators */
+.closed-dot, .closed-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff0055;
+  box-shadow: 0 0 10px #ff0055;
+  display: inline-block;
+  animation: blink 1.2s ease infinite;
+}
+.pulse-red-status {
+  background: #ff0055 !important;
+  box-shadow: 0 0 12px #ff0055, 0 0 24px rgba(255, 0, 85, 0.6) !important;
+  animation: blink 1.2s ease infinite !important;
+}
+
+/* Register page closed header status */
+.reg-closed-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.reg-closed-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff0055;
+  box-shadow: 0 0 12px #ff0055, 0 0 20px rgba(255, 0, 85, 0.5);
+  animation: blink 1.2s ease infinite;
+}
+.reg-closed-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #ff4d6d;
+  text-shadow: 0 0 12px rgba(255, 0, 85, 0.5);
+}
+
+/* Full Portal Closed Dedicated Screen */
+.portal-closed-container {
+  width: 100%;
+  max-width: 720px;
+  margin: 1.5rem auto;
+  text-align: center;
+  animation: slideIn 0.35s ease;
+}
+.portal-closed-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(28, 12, 28, 0.88) 0%, rgba(10, 12, 22, 0.94) 100%);
+  border: 1.8px solid rgba(255, 0, 85, 0.65);
+  border-radius: 20px;
+  padding: 3.2rem 2.2rem;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 0 65px rgba(255, 0, 85, 0.28), 0 20px 60px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+.portal-closed-glow-top {
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ff0055, #ffb703, transparent);
+  box-shadow: 0 0 25px #ff0055;
+}
+.portal-closed-icon-badge {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem auto;
+  background: radial-gradient(circle, rgba(255, 0, 85, 0.25) 0%, rgba(255, 0, 85, 0.05) 70%, transparent 100%);
+  border: 2px solid #ff0055;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff3366;
+  box-shadow: 0 0 35px rgba(255, 0, 85, 0.5);
+  animation: orbPulseRed 2.5s ease-in-out infinite;
+}
+@keyframes orbPulseRed {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 28px rgba(255, 0, 85, 0.4);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 48px rgba(255, 0, 85, 0.7), 0 0 18px rgba(255, 183, 3, 0.4);
+  }
+}
+.portal-closed-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1.1rem;
+  background: rgba(255, 0, 85, 0.16);
+  border: 1px solid rgba(255, 0, 85, 0.5);
+  border-radius: 20px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #ff4d6d;
+  margin-bottom: 1.3rem;
+  text-transform: uppercase;
+}
+.portal-closed-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.8rem, 4.5vw, 2.7rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, #ffffff 0%, #ff5c7e 30%, #ff0055 70%, #ffb703 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.1rem;
+  filter: drop-shadow(0 0 25px rgba(255, 0, 85, 0.6));
+}
+.portal-closed-message {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 580px;
+  margin: 0 auto 1.8rem auto;
+}
+.portal-closed-highlight-box {
+  background: rgba(255, 0, 85, 0.08);
+  border: 1px solid rgba(255, 0, 85, 0.28);
+  border-left: 4px solid #ff0055;
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  margin: 0 auto 2.2rem auto;
+  text-align: left;
+  max-width: 580px;
+}
+.portal-closed-highlight-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #ff758f;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.portal-closed-highlight-desc {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  margin: 0;
+}
+.portal-closed-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+

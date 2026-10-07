@@ -136,14 +136,9 @@ export default function GamesPage() {
                 <span className="badge-dot" />
                 <span className="badge-text">BATTLEGROUNDS 2026</span>
               </div>
-              <Link to="/register" className="cyber-btn cyber-btn-primary glow-cyan">
-                <span>REGISTER NOW</span>
-                <span className="btn-icon-box">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="8 5 15 12 8 19" />
-                    <polyline points="14 5 21 12 14 19" opacity="0.6" />
-                  </svg>
-                </span>
+              <Link to="/register" className="cyber-btn cyber-btn-closed glow-red" title="Registrations are officially closed">
+                <span className="closed-dot" />
+                <span>REGISTRATIONS CLOSED</span>
               </Link>
             </div>
           </div>
@@ -246,8 +241,9 @@ export default function GamesPage() {
                     <span>NEXT STAGE</span>
                     <span className="kbd-hint">[→]</span>
                   </button>
-                  <Link to="/register" className="cyber-btn cyber-btn-primary glow-cyan stage-register-btn">
-                    <span>REGISTER SQUAD NOW</span>
+                  <Link to="/register" className="cyber-btn cyber-btn-closed glow-red stage-register-btn" title="Registrations are officially closed">
+                    <span className="closed-dot" />
+                    <span>REGISTRATIONS CLOSED</span>
                   </Link>
                 </div>
               </div>

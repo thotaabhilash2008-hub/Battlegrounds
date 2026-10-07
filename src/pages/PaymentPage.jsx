@@ -71,8 +71,9 @@ export default function PaymentPage() {
 
   useEffect(() => {
     if (bgRef.current) bgRef.current.play().catch(() => {})
-    if (!data.teamName) navigate('/register')
-  }, [])
+    // Registration portal is stopped
+    navigate('/register')
+  }, [navigate])
 
   const isReady = hasFile && !!previewSrc && utr.trim().length >= 6
 

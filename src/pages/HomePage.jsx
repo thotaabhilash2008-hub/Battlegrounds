@@ -248,7 +248,7 @@ export default function HomePage() {
             <div className="video-hud">
               <div className="hud-top-bar">
                 <div className="hud-corner hud-top-left">
-                  <span className="hud-tag">SEC-07 // REGISTRATION FEED</span>
+                  <span className="hud-tag">SEC-07 // REGISTRATIONS CLOSED</span>
                   <span className="hud-status-dot pulse-red" />
                   <span className="hud-text">FEED: 1080P // 32FPS</span>
                 </div>
@@ -339,14 +339,9 @@ export default function HomePage() {
                 <span className="btn-icon">↺</span>
                 <span className="btn-text">REPLAY INTRO</span>
               </button>
-              <Link to="/register" className="cyber-btn cyber-btn-primary glow-cyan">
-                <span>REGISTER NOW</span>
-                <span className="btn-icon-box">
-                  <svg className="hud-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="8 5 15 12 8 19" />
-                    <polyline points="14 5 21 12 14 19" opacity="0.6" />
-                  </svg>
-                </span>
+              <Link to="/register" className="cyber-btn cyber-btn-closed glow-red" title="Registrations are officially closed">
+                <span className="closed-dot" />
+                <span>REGISTRATIONS CLOSED</span>
               </Link>
             </div>
           </div>
@@ -371,19 +366,34 @@ export default function HomePage() {
                 <h2 className="hero-subtitle-survive">SURVIVE THE SYSTEM</h2>
                 <span className="hero-tech-line tech-right" />
               </div>
+
+              {/* Highlighted Project Registrations Closed Banner */}
+              <div className="hero-closed-banner">
+                <div className="closed-banner-badge">
+                  <span className="closed-pulse-dot" />
+                  <span>NOTICE // TOURNAMENT PROTOCOL</span>
+                </div>
+                <div className="closed-banner-title">
+                  <span className="closed-warning-icon">⚠️</span>
+                  <span>REGISTRATIONS CLOSED</span>
+                </div>
+                <p className="closed-banner-desc">
+                  All squad slots for Battlegrounds 2026 have been successfully claimed. The registration portal is now closed.
+                </p>
+              </div>
             </div>
 
             <div className="hero-cta-options">
-              <Link to="/register" className="cyber-btn-register">
-                <span>REGISTER NOW</span>
-                <span className="btn-icon-box btn-icon-register">
+              <Link to="/register" className="cyber-btn-register-closed" title="Project registrations closed">
+                <span className="btn-icon-box">
                   <svg className="hud-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="8 5 15 12 8 19" />
-                    <polyline points="14 5 21 12 14 19" opacity="0.6" />
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor" />
                   </svg>
                 </span>
+                <span>REGISTRATIONS CLOSED</span>
               </Link>
-              <Link to="/games" className="cyber-btn-explore">
+              <Link to="/games" className="cyber-btn-explore cyber-btn-explore-highlight">
                 <span>EXPLORE THE GAMES</span>
                 <span className="btn-icon-box btn-icon-explore">
                   <svg className="hud-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
@@ -405,9 +415,9 @@ export default function HomePage() {
                 <img src="/assets/vardhaman_neon_logo.png" alt="Vardhaman College of Engineering" className="footer-college-logo" />
               </div>
               <div className="footer-status-group" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-                <div className="footer-status">
-                  <span className="status-pulse-dot" />
-                  <span>REGISTRATION PORTAL ONLINE</span>
+                <div className="footer-status footer-status-closed">
+                  <span className="status-pulse-dot pulse-red-status" />
+                  <span style={{ color: '#ff4d6d', fontWeight: 700, letterSpacing: '0.08em' }}>REGISTRATION PORTAL CLOSED</span>
                 </div>
                 <Link to="/admin" className="footer-status footer-admin-btn" title="Open Admin Control Panel">
                   <span className="status-pulse-dot" style={{ background: '#ff2ef7' }} />
