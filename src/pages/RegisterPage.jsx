@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 const BRANCHES = ['CSE', 'CSM', 'CSD', 'IT', 'ECE', 'EEE', 'MECHANICAL', 'CIVIL']
-const YEARS = ['1st Year', '2nd Year']
+const YEARS = ['1st Year', '2nd Year', '3rd Year']
 const CLUSTERS = ['Cluster 1', 'Cluster 2', 'Cluster 3']
 const RATE = 50
 

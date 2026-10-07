@@ -434,7 +434,7 @@ function RegistrationsView({ regs, onStatusChange, onDelete, onSelectReg }) {
             style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, padding: '0.4rem 0.8rem', fontSize: '0.75rem', outline: 'none' }}
           >
             <option value="all" style={{ background: '#0f1420' }}>All Years</option>
-            {uniqueYears.map(y => <option key={y} value={y} style={{ background: '#0f1420' }}>Year {y}</option>)}
+            {uniqueYears.map(y => <option key={y} value={y} style={{ background: '#0f1420' }}>{y.toLowerCase().includes('year') ? y : `Year ${y}`}</option>)}
           </select>
           <select 
             value={branchFilter} 
